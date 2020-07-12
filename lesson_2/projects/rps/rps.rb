@@ -1,3 +1,5 @@
+require 'pry'
+
 class Player
   attr_accessor :move, :name, :score
 
@@ -25,11 +27,11 @@ class Human < Player
   def choose
     choice = nil
     loop do
-      puts "Please enter your move (rock, paper, or scissors):"
+      puts "Please enter your move: (r)ock, (p)aper, or (s)cissors."
       choice = gets.chomp
-      break if Move::VALUES.include?(choice)
+      break if Move::VALUES.keys.include?(choice)
     end
-    self.move = Move.new(choice)
+    self.move = Move.new(Move::VALUES[choice])
   end
 end
 
@@ -41,12 +43,16 @@ class Computer < Player
   end
 
   def choose
-    self.move = Move.new(Move::VALUES.sample)
+    self.move = Move.new(Move::VALUES.values.sample)
   end
 end
 
 class Move
-  VALUES = ['rock', 'paper', 'scissors']
+  VALUES = {
+    'r' => 'rock',
+    'p' => 'paper',
+    's' => 'scissors'
+  }
 
   def initialize(value)
     @value = value
