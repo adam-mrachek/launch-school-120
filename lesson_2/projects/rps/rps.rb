@@ -1,5 +1,3 @@
-require 'pry'
-
 class Player
   attr_accessor :move, :name, :score
 
@@ -27,7 +25,7 @@ class Human < Player
   def choose
     choice = nil
     loop do
-      puts "Please enter your move: (r)ock, (p)aper, or (s)cissors."
+      puts "Choose your move: (r)ock, (p)aper, (sc)issors, (l)izard, (sp)ock."
       choice = gets.chomp
       break if Move::VALUES.keys.include?(choice)
     end
@@ -48,10 +46,22 @@ class Computer < Player
 end
 
 class Move
+  attr_reader :value
+
   VALUES = {
     'r' => 'rock',
     'p' => 'paper',
-    's' => 'scissors'
+    'sc' => 'scissors',
+    'l' => 'lizard',
+    'sp' => 'spock'
+  }
+
+  WINNING_MOVES = {
+    'rock' => ['scissors', 'lizard'],
+    'paper' => ['rock', 'spock'],
+    'scissors' => ['paper', 'lizard'],
+    'lizard' => ['paper', 'spock'],
+    'spock' => ['rock', 'scissors']
   }
 
   def initialize(value)
@@ -74,24 +84,20 @@ class Move
     @value == 'scissors'
   end
 
+  def lizard?
+    @value = 'lizard'
+  end
+
+  def spock?
+    @value = 'spock'
+  end
+
   def >(other_move)
-    if rock?
-      other_move.scissors?
-    elsif paper?
-      other_move.rock?
-    elsif scissors?
-      other_move.paper?
-    end
+    WINNING_MOVES[@value].include?(other_move.value)
   end
 
   def <(other_move)
-    if rock?
-      other_move.paper?
-    elsif paper?
-      other_move.scissors?
-    elsif scissors?
-      other_move.rock?
-    end
+    WINNING_MOVES[other_move.value].include?(@value)
   end
 end
 
