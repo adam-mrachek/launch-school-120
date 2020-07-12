@@ -1,5 +1,5 @@
 class Player
-  attr_accessor :move, :name
+  attr_accessor :move, :name, :score
 
   def initialize
     set_name
@@ -90,27 +90,35 @@ class Move
 end
 
 class RPSGame
-  attr_accessor :human, :computer, :score
+  attr_accessor :human, :computer
 
   WINNING_SCORE = 3
 
   def initialize
     @human = Human.new
     @computer = Computer.new
-    @score = {}
   end
 
   def reset_score
-    self.score["#{human}"] = 0
-    self.score["#{computer}"] = 0
+    human.score = 0
+    computer.score = 0
   end
 
   def update_score(player)
-    score["#{player}"] += 1 if player
+    player.score += 1 if player
+  end
+
+  def overall_winner?
+    human.score == WINNING_SCORE || computer.score == WINNING_SCORE
+  end
+
+  def overall_winner
+    human if human.score == WINNING_SCORE
+    computer if computer.score == WINNING_SCORE
   end
 
   def display_overall_winner
-    puts "#{score.key(WINNING_SCORE)} wins the game!"
+    puts "#{overall_winner} wins the game!"
   end
 
   def display_welcome_message
@@ -136,8 +144,6 @@ class RPSGame
       human
     elsif human.move < computer.move
       computer
-    else
-      nil
     end
   end
 
@@ -147,14 +153,13 @@ class RPSGame
     else
       puts "It's a tie!"
     end
-    
   end
 
   def display_score
     puts "---------"
     puts "Score:"
-    puts "#{human}: #{score["#{human}"]}"
-    puts "#{computer}: #{score["#{computer}"]}"
+    puts "#{human}: #{human.score}"
+    puts "#{computer}: #{computer.score}"
     puts "---------"
   end
 
@@ -170,17 +175,17 @@ class RPSGame
         display_winner(winning_player)
         update_score(winning_player)
         display_score
-        break if score.values.include?(WINNING_SCORE)
+        break if overall_winner?
       end
-       display_overall_winner
-       break unless play_again?
+      display_overall_winner
+      break unless play_again?
     end
 
     display_goodbye_message
   end
 
   def play_again?
-    options = ['y', 'n']
+    options = %w(y n)
     choice = nil
     loop do
       puts "Would you like to play again? (y/n)"
