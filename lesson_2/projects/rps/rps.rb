@@ -1,5 +1,64 @@
+class Move
+  attr_reader :value, :beats
+
+  def to_s
+    @value
+  end
+
+  def >(other_move)
+    beats.include?(other_move.value)
+  end
+
+  def <(other_move)
+    other_move.beats.include?(value)
+  end
+end
+
+class Rock < Move
+  def initialize
+    @value = 'rock'
+    @beats = ['scissors', 'lizard']
+  end
+end
+
+class Paper < Move
+  def initialize
+    @value = 'paper'
+    @beats = ['rock', 'spock']
+  end
+end
+
+class Scissors < Move
+  def initialize
+    @value = 'scissors'
+    @beats = ['paper', 'lizard']
+  end
+end
+
+class Lizard < Move
+  def initialize
+    @value = 'lizard'
+    @beats = ['paper', 'spock']
+  end
+end
+
+class Spock < Move
+  def initialize
+    @value = 'spock'
+    @beats = ['rock', 'scissors']
+  end
+end
+
 class Player
   attr_accessor :move, :name, :score
+
+  MOVES = {
+      'r' => Rock.new,
+      'p' => Paper.new,
+      'sc' => Scissors.new,
+      'l' => Lizard.new,
+      'sp' => Spock.new
+  }
 
   def initialize
     set_name
@@ -27,9 +86,9 @@ class Human < Player
     loop do
       puts "Choose your move: (r)ock, (p)aper, (sc)issors, (l)izard, (sp)ock."
       choice = gets.chomp
-      break if Move::VALUES.keys.include?(choice)
+      break if MOVES.keys.include?(choice)
     end
-    self.move = Move.new(Move::VALUES[choice])
+    self.move = MOVES[choice]
   end
 end
 
@@ -41,63 +100,7 @@ class Computer < Player
   end
 
   def choose
-    self.move = Move.new(Move::VALUES.values.sample)
-  end
-end
-
-class Move
-  attr_reader :value
-
-  VALUES = {
-    'r' => 'rock',
-    'p' => 'paper',
-    'sc' => 'scissors',
-    'l' => 'lizard',
-    'sp' => 'spock'
-  }
-
-  WINNING_MOVES = {
-    'rock' => ['scissors', 'lizard'],
-    'paper' => ['rock', 'spock'],
-    'scissors' => ['paper', 'lizard'],
-    'lizard' => ['paper', 'spock'],
-    'spock' => ['rock', 'scissors']
-  }
-
-  def initialize(value)
-    @value = value
-  end
-
-  def to_s
-    @value
-  end
-
-  def rock?
-    @value == 'rock'
-  end
-
-  def paper?
-    @value == 'paper'
-  end
-
-  def scissors?
-    @value == 'scissors'
-  end
-
-  def lizard?
-    @value = 'lizard'
-  end
-
-  def spock?
-    @value = 'spock'
-  end
-
-  def >(other_move)
-    WINNING_MOVES[@value].include?(other_move.value)
-  end
-
-  def <(other_move)
-    WINNING_MOVES[other_move.value].include?(@value)
+    self.move = MOVES[MOVES.keys.sample]
   end
 end
 
