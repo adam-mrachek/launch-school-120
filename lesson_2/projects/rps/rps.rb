@@ -82,11 +82,11 @@ class Player
   attr_accessor :move, :name, :score
 
   MOVES = {
-      'r' => 'Rock',
-      'p' => 'Paper',
-      'sc' => 'Scissors',
-      'l' => 'Lizard',
-      'sp' => 'Spock'
+    'r' => 'Rock',
+    'p' => 'Paper',
+    'sc' => 'Scissors',
+    'l' => 'Lizard',
+    'sp' => 'Spock'
   }
 
   def initialize
@@ -236,7 +236,7 @@ class RPSGame
   def display_history
     empty_line
     puts "Player move history by round:"
-    Move.all.each_with_index do |moves, i |
+    Move.all.each_with_index do |moves, i|
       dash_border
       puts "Round #{i + 1}:"
       moves.each do |move|
@@ -258,20 +258,24 @@ class RPSGame
     choice == 'y'
   end
 
+  def game_round
+    loop do
+      choose_moves
+      update_move_history
+      display_moves
+      display_winner(winning_player)
+      update_score(winning_player)
+      display_score
+      break if overall_winner?
+    end
+  end
+
   def play
     display_welcome_message
 
     loop do
       reset_score
-      loop do
-        choose_moves
-        update_move_history
-        display_moves
-        display_winner(winning_player)
-        update_score(winning_player)
-        display_score
-        break if overall_winner?
-      end
+      game_round
       display_overall_winner
       display_history if view_history?
       break unless play_again?
