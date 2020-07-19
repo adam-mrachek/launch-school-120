@@ -1,3 +1,17 @@
+module Displayable
+  def empty_line
+    puts
+  end
+
+  def dash_border
+    puts "---------"
+  end
+
+  def clear_screen
+    system('clear') || system('cls')
+  end
+end
+
 class Move
   attr_reader :value, :beats, :player
 
@@ -65,7 +79,7 @@ class Spock < Move
 end
 
 class Player
-  attr_accessor :move, :name, :score, :moves
+  attr_accessor :move, :name, :score
 
   MOVES = {
       'r' => 'Rock',
@@ -77,7 +91,6 @@ class Player
 
   def initialize
     set_name
-    @moves = []
   end
 
   def to_s
@@ -100,13 +113,12 @@ class Human < Player
   def choose
     choice = nil
     loop do
-      puts "Choose your move: (r)ock, (p)aper, (sc)issors, (l)izard, (sp)ock."
+      puts "> Choose your move: (r)ock, (p)aper, (sc)issors, (l)izard, (sp)ock."
       choice = gets.chomp
       break if MOVES.keys.include?(choice)
     end
     move_class = Object.const_get(MOVES[choice])
     self.move = move_class.new(self)
-    self.moves << move
   end
 end
 
@@ -124,6 +136,8 @@ class Computer < Player
 end
 
 class RPSGame
+  include Displayable
+
   attr_accessor :human, :computer
 
   WINNING_SCORE = 3
@@ -147,19 +161,20 @@ class RPSGame
   end
 
   def overall_winner
-    human if human.score == WINNING_SCORE
-    computer if computer.score == WINNING_SCORE
+    return human if human.score == WINNING_SCORE
+    return computer if computer.score == WINNING_SCORE
   end
 
   def display_overall_winner
     puts "#{overall_winner} wins the game!"
+    empty_line
   end
 
   def display_welcome_message
-    puts
+    empty_line
     puts "Welcome to Rock, Paper, Scissors!"
     puts "First player to #{WINNING_SCORE} wins!"
-    puts
+    empty_line
   end
 
   def display_goodbye_message
@@ -172,10 +187,10 @@ class RPSGame
   end
 
   def display_moves
-    puts
+    empty_line
     puts "You chose #{human.move}."
-    puts "The computer chose #{computer.move}."
-    puts
+    puts "#{computer} chose #{computer.move}."
+    empty_line
   end
 
   def update_move_history
@@ -199,17 +214,18 @@ class RPSGame
   end
 
   def display_score
-    puts "---------"
+    dash_border
     puts "Score:"
     puts "#{human}: #{human.score}"
     puts "#{computer}: #{computer.score}"
-    puts "---------"
+    dash_border
+    empty_line
   end
 
   def view_history?
     choice = nil
     loop do
-      puts "Would you like to view all player moves from this session? (y/n)"
+      puts "> Would you like to view all player moves from this session? (y/n)"
       choice = gets.chomp.downcase
       break if ['y', 'n'].include?(choice)
       puts "Sorry, that's not a valid choice."
@@ -218,13 +234,28 @@ class RPSGame
   end
 
   def display_history
+    empty_line
+    puts "Player move history by round:"
     Move.all.each_with_index do |moves, i |
-      puts "--------"
+      dash_border
       puts "Round #{i + 1}:"
       moves.each do |move|
         puts "#{move.player.name}: #{move.value}"
       end
     end
+    empty_line
+  end
+
+  def play_again?
+    options = %w(y n)
+    choice = nil
+    loop do
+      puts "> Would you like to play again? (y/n)"
+      choice = gets.chomp.downcase
+      break if options.include?(choice)
+      puts "Invalid input. Choose 'y' or 'n'."
+    end
+    choice == 'y'
   end
 
   def play
@@ -244,21 +275,10 @@ class RPSGame
       display_overall_winner
       display_history if view_history?
       break unless play_again?
+      clear_screen
     end
 
     display_goodbye_message
-  end
-
-  def play_again?
-    options = %w(y n)
-    choice = nil
-    loop do
-      puts "Would you like to play again? (y/n)"
-      choice = gets.chomp.downcase
-      break if options.include?(choice)
-      puts "Invalid input. Choose 'y' or 'n'."
-    end
-    choice == 'y'
   end
 end
 
