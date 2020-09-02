@@ -139,6 +139,8 @@ class Player
   attr_accessor :score
   attr_reader :name, :marker, :player_type
 
+  include Displayable
+
   def initialize(marker, player_type = :human)
     @marker = marker
     @player_type = player_type
@@ -157,6 +159,7 @@ class Player
   def choose_name
     name = nil
     if human?
+      clear
       loop do
         puts "Please enter your name:"
         name = gets.chomp
@@ -171,21 +174,22 @@ class Player
 end
 
 class TTTGame
-  attr_reader :board, :player, :computer
+  attr_reader :board, :player, :computer, :game_starter
 
   include Displayable
   include Joinable
 
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
-  FIRST_TO_MOVE = HUMAN_MARKER
+  FIRST_TO_MOVE = 'choose'
   WINNING_SCORE = 5
 
   def initialize
     @board = Board.new
     @player = Player.new(HUMAN_MARKER)
     @computer = Player.new(COMPUTER_MARKER, :computer)
-    @current_marker = FIRST_TO_MOVE
+    @current_marker = first_player
+    @game_starter = @current_marker
   end
 
   def play
@@ -195,6 +199,27 @@ class TTTGame
   end
 
   private
+
+  def first_player
+    case FIRST_TO_MOVE
+    when 'choose' then choose_first_player
+    when HUMAN_MARKER then HUMAN_MARKER
+    when COMPUTER_MARKER then COMPUTER_MARKER
+    end
+  end
+
+  def choose_first_player
+    choice = nil
+    loop do
+      empty_line
+      puts "Select first player (1 for human, 2 for computer)"
+      choice = gets.chomp.to_i
+      break if [1, 2].include?(choice)
+      puts "Invalid choice."
+    end
+
+    choice == 1 ? HUMAN_MARKER : COMPUTER_MARKER
+  end
 
   def display_welcome_message
     clear
@@ -356,7 +381,7 @@ class TTTGame
     puts "Press enter to start next round."
     gets.chomp
     board.reset
-    @current_marker = FIRST_TO_MOVE
+    @current_marker = @game_starter
   end
 
   def reset_game
@@ -366,7 +391,8 @@ class TTTGame
     puts "*****************"
     board.reset
     reset_score
-    @current_marker = FIRST_TO_MOVE
+    @current_marker = first_player
+    @game_starter = @current_marker
   end
 end
 
