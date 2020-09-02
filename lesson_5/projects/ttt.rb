@@ -1,4 +1,5 @@
 require 'pry'
+system 'clear'
 
 module Joinable
   def joinor(array, delimeter=", ", word='or')
@@ -92,15 +93,13 @@ class Board
   end
 
   def at_risk_square(marker)
-    line = WINNING_LINES.find do |line|
+    at_risk_line = WINNING_LINES.find do |line|
       line.count { |square| @squares[square].marker == marker } == 2 &&
-       line.count { |square| @squares[square].marker == nil } == 1
+        line.count { |square| @squares[square].marker.nil? } == 1
     end
 
-    if line
-      line.each do |square|
-        return square if @squares[square].marker == nil
-      end
+    at_risk_line&.each do |square|
+      return square if @squares[square].marker.nil?
     end
   end
 
@@ -144,32 +143,35 @@ class Player
   def initialize(marker, player_type = :human)
     @marker = marker
     @player_type = player_type
-    @name = choose_name
+    @name = set_name
     @score = 0
   end
 
   def to_s
-    self.name
+    name
   end
 
   def human?
     @player_type == :human
   end
 
-  def choose_name
+  def player_name
     name = nil
-    if human?
-      clear
-      loop do
-        puts "Please enter your name:"
-        name = gets.chomp
-        break unless name.empty?
-        puts "Sorry, name can't be blank."
-      end
-    else
-      name = ['Woody', 'Buzz Lightyear', 'Olaf', 'Moana', 'Maui'].sample
+    loop do
+      puts "Please enter your name:"
+      name = gets.chomp
+      break unless name.empty?
+      puts "Sorry, name can't be blank."
     end
-    @name = name
+    name
+  end
+
+  def set_name
+    if human?
+      player_name
+    else
+      ['Woody', 'Buzz Lightyear', 'Olaf', 'Moana', 'Maui'].sample
+    end
   end
 end
 
@@ -193,6 +195,7 @@ class TTTGame
   end
 
   def play
+    clear
     display_welcome_message
     main_game
     display_goodbye_message
@@ -248,15 +251,15 @@ class TTTGame
   end
 
   def computer_moves
-    if board.at_risk_square(COMPUTER_MARKER)
-      choice = board.at_risk_square(COMPUTER_MARKER)
-    elsif board.at_risk_square(HUMAN_MARKER)
-      choice = board.at_risk_square(HUMAN_MARKER)
-    elsif board.open_squares.include?(5)
-      choice = 5
-    else
-      choice = board.open_squares.sample
-    end
+    choice = if board.at_risk_square(COMPUTER_MARKER)
+               board.at_risk_square(COMPUTER_MARKER)
+             elsif board.at_risk_square(HUMAN_MARKER)
+               board.at_risk_square(HUMAN_MARKER)
+             elsif board.open_squares.include?(5)
+               5
+             else
+               board.open_squares.sample
+             end
     board[choice] = computer.marker
   end
 
@@ -272,16 +275,20 @@ class TTTGame
     loop do
       display_welcome_message
       start_game_prompt
-      loop do
-        player_move
-        update_score
-        display_result
-        break if game_winner?
-        reset_round     
-      end
+      play_round
       display_game_winner
       break unless play_again?
       reset_game
+    end
+  end
+
+  def play_round
+    loop do
+      player_move
+      update_score
+      display_result
+      break if game_winner?
+      reset_round
     end
   end
 
@@ -341,7 +348,7 @@ class TTTGame
     clear_screen_and_display_board
 
     case round_winner
-    when player 
+    when player
       puts "** You won the round! **"
     when computer
       puts "** #{computer.name} won the round! **"
