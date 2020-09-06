@@ -1,7 +1,6 @@
-require 'pry'
-system 'clear'
+system('clear') || system('cls')
 
-module Joinable
+module Utilities
   def joinor(array, delimeter=", ", word='or')
     case array.size
     when 0 then ''
@@ -16,11 +15,19 @@ end
 
 module Displayable
   def clear
-    system 'clear'
+    system('clear') || system('cls')
   end
 
   def empty_line
     puts ""
+  end
+
+  def horizontal_rule
+    puts "-------------------------------------"
+  end
+
+  def star_line
+    puts "*****************"
   end
 end
 
@@ -92,13 +99,15 @@ class Board
     nil
   end
 
-  def at_risk_square(marker)
-    at_risk_line = WINNING_LINES.find do |line|
+  def at_risk_line(marker)
+    WINNING_LINES.find do |line|
       line.count { |square| @squares[square].marker == marker } == 2 &&
         line.count { |square| @squares[square].marker.nil? } == 1
     end
+  end
 
-    at_risk_line&.each do |square|
+  def at_risk_square(marker)
+    at_risk_line(marker)&.each do |square|
       return square if @squares[square].marker.nil?
     end
   end
@@ -143,7 +152,7 @@ class Player
   def initialize(marker, player_type = :human)
     @marker = marker
     @player_type = player_type
-    @name = set_name
+    @name = ''
     @score = 0
   end
 
@@ -167,11 +176,11 @@ class Player
   end
 
   def set_name
-    if human?
-      player_name
-    else
-      ['Woody', 'Buzz Lightyear', 'Olaf', 'Moana', 'Maui'].sample
-    end
+    @name = if human?
+              player_name
+            else
+              ['Woody', 'Buzz Lightyear', 'Olaf', 'Moana', 'Maui'].sample
+            end
   end
 end
 
@@ -179,7 +188,7 @@ class TTTGame
   attr_reader :board, :player, :computer, :game_starter
 
   include Displayable
-  include Joinable
+  include Utilities
 
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
@@ -190,13 +199,12 @@ class TTTGame
     @board = Board.new
     @player = Player.new(HUMAN_MARKER)
     @computer = Player.new(COMPUTER_MARKER, :computer)
-    @current_marker = first_player
-    @game_starter = @current_marker
   end
 
   def play
     clear
     display_welcome_message
+    choose_game_conditions
     main_game
     display_goodbye_message
   end
@@ -209,6 +217,11 @@ class TTTGame
     when HUMAN_MARKER then HUMAN_MARKER
     when COMPUTER_MARKER then COMPUTER_MARKER
     end
+  end
+
+  def choose_player_names
+    player.set_name
+    computer.set_name
   end
 
   def choose_first_player
@@ -224,12 +237,17 @@ class TTTGame
     choice == 1 ? HUMAN_MARKER : COMPUTER_MARKER
   end
 
+  def choose_game_conditions
+    choose_player_names
+    @game_starter = @current_marker = first_player
+  end
+
   def display_welcome_message
     clear
-    puts "---------------------------------------"
-    puts "Hi, #{player.name}. Welcome to Tic Tac Toe!"
+    horizontal_rule
+    puts "Welcome to Tic Tac Toe!"
     puts "First player to #{WINNING_SCORE} wins the game."
-    puts "---------------------------------------"
+    horizontal_rule
   end
 
   def start_game_prompt
@@ -273,7 +291,6 @@ class TTTGame
 
   def main_game
     loop do
-      display_welcome_message
       start_game_prompt
       play_round
       display_game_winner
@@ -393,9 +410,9 @@ class TTTGame
 
   def reset_game
     clear
-    puts "*****************"
+    star_line
     puts "Let's play again!"
-    puts "*****************"
+    star_line
     board.reset
     reset_score
     @current_marker = first_player
