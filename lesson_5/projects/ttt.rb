@@ -1,5 +1,3 @@
-system('clear') || system('cls')
-
 module Utilities
   def joinor(array, delimeter=", ", word='or')
     case array.size
@@ -92,9 +90,7 @@ class Board
   def winning_marker
     WINNING_LINES.each do |line|
       squares = @squares.values_at(*line)
-      if three_identical_markers?(squares)
-        return squares.first.marker
-      end
+      return squares.first.marker if three_identical_markers?(squares)
     end
     nil
   end
@@ -164,12 +160,12 @@ class Player
     @player_type == :human
   end
 
-  def player_name
+  def choose_player_name
     name = nil
     loop do
       puts "Please enter your name:"
       name = gets.chomp
-      break unless name.empty?
+      break unless name.strip.empty?
       puts "Sorry, name can't be blank."
     end
     name
@@ -177,7 +173,7 @@ class Player
 
   def set_name
     @name = if human?
-              player_name
+              choose_player_name
             else
               ['Woody', 'Buzz Lightyear', 'Olaf', 'Moana', 'Maui'].sample
             end
@@ -228,13 +224,13 @@ class TTTGame
     choice = nil
     loop do
       empty_line
-      puts "Select first player (1 for human, 2 for computer)"
-      choice = gets.chomp.to_i
-      break if [1, 2].include?(choice)
+      puts "Select first player ('h' for human, 'c' for computer)"
+      choice = gets.chomp.downcase
+      break if ['h', 'c'].include?(choice)
       puts "Invalid choice."
     end
 
-    choice == 1 ? HUMAN_MARKER : COMPUTER_MARKER
+    choice == 'h' ? HUMAN_MARKER : COMPUTER_MARKER
   end
 
   def choose_game_conditions
@@ -261,11 +257,11 @@ class TTTGame
     loop do
       empty_line
       puts "Enter #{joinor(board.open_squares)} to select a square."
-      choice = gets.chomp.to_i
-      break if (1..9).include?(choice) && board[choice].unmarked?
+      choice = gets.chomp
+      break if ('1'..'9').include?(choice) && board[choice.to_i].unmarked?
       puts "Sorry, not a valid choice."
     end
-    board[choice] = player.marker
+    board[choice.to_i] = player.marker
   end
 
   def computer_moves
