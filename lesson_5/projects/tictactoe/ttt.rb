@@ -108,6 +108,10 @@ class Board
     end
   end
 
+  def valid_move?(marker)
+    ('1'..'9').include?(marker) && self[marker.to_i].unmarked?
+  end
+
   private
 
   def three_identical_markers?(squares)
@@ -258,7 +262,7 @@ class TTTGame
       empty_line
       puts "Enter #{joinor(board.open_squares)} to select a square."
       choice = gets.chomp
-      break if ('1'..'9').include?(choice) && board[choice.to_i].unmarked?
+      break if board.valid_move?(choice)
       puts "Sorry, not a valid choice."
     end
     board[choice.to_i] = player.marker
