@@ -1,8 +1,6 @@
 require 'pry'
 
-class Hand
-  attr_accessor :cards
-
+module Hand
   VALUES = {
     '2' => 2,
     '3' => 3,
@@ -19,27 +17,24 @@ class Hand
     'Ace' => 11
   }
 
-  def initialize
-    @cards = []
-  end
-
-  def busted?
+  def busted?(cards)
 
   end
 
-  def total
-    binding.pry
+  def total(cards)
     cards.sum{ |card| VALUES[card[0]] }
   end
 end
 
 class Participant
+  include Hand
   attr_reader :name, :type
+  attr_accessor :hand
 
   def initialize(type = :dealer)
     @type = type
     @name = set_name
-    @hand = Hand.new
+    @hand = []
   end
 
   def set_name
@@ -48,14 +43,6 @@ class Participant
             else
               choose_player_name
             end
-  end
-
-  def hand
-    @hand.cards
-  end
-
-  def hand=(card)
-    @hand.cards << card
   end
 
   def choose_player_name
@@ -85,14 +72,14 @@ class Deck
   attr_reader :cards
 
   SUITS = %w(Diamonds Hearts Clubs Spades)
-  VALUES = %w(2 3 4 5 6 7 8 9 Jack Queen King Ace)
+  RANKS = %w(2 3 4 5 6 7 8 9 Jack Queen King Ace)
   
   def initialize
     @cards = shuffle
   end
 
   def shuffle
-    @cards = VALUES.product(SUITS).shuffle
+    @cards = RANKS.product(SUITS).shuffle
   end
 end
 
@@ -128,7 +115,7 @@ class Game
     player.hand.each do |card|
       puts "#{card[0]} of #{card[1]}"
     end
-    puts "Total: #{player.hand.total}"
+    puts "Total: #{player.total(player.hand)}"
   end
 end
 
