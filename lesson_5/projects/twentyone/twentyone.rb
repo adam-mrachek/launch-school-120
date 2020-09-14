@@ -17,32 +17,23 @@ module Hand
     'Ace' => 11
   }
 
-  def busted?(cards)
-
+  def busted?
+    self.total > 21
   end
 
-  def total(cards)
-    cards.sum{ |card| VALUES[card[0]] }
+  def total
+    hand.sum{ |card| VALUES[card[0]] }
   end
 end
 
-class Participant
+class Player
   include Hand
   attr_reader :name, :type
   attr_accessor :hand
 
-  def initialize(type = :dealer)
-    @type = type
-    @name = set_name
+  def initialize
+    @name = nil
     @hand = []
-  end
-
-  def set_name
-    @name = if type == :dealer
-              'Dealer'
-            else
-              choose_player_name
-            end
   end
 
   def choose_player_name
@@ -53,11 +44,7 @@ class Participant
       break unless name.strip.empty?
       puts "Sorry, that's not a valid name."
     end
-    name
-  end
-
-  def dealer?
-    @type == :dealer
+    @name = name
   end
 
   def hit
@@ -65,6 +52,21 @@ class Participant
   end
 
   def stay
+  end
+
+  def show_cards 
+    puts "#{name} has:"
+    hand.each do |card|
+      puts "#{card[0]} of #{card[1]}"
+    end
+    puts "Total: #{total}"
+  end
+end
+
+class Dealer < Player
+  def initialize
+    super
+    @name = 'Dealer'
   end
 end
 
@@ -88,8 +90,8 @@ class Game
 
   def initialize
     @deck = Deck.new.cards
-    @player = Participant.new(type: :player)
-    @dealer = Participant.new
+    @player = Player.new
+    @dealer = Dealer.new
   end
 
   def start
@@ -111,11 +113,33 @@ class Game
     puts "Dealer shows: #{dealer.hand[0][0]} of #{dealer.hand[0][1]}"
     puts "Dealer total: #{Hand::VALUES[dealer.hand[0][0]]}"
     puts ""
-    puts "#{player.name} has:"
-    player.hand.each do |card|
-      puts "#{card[0]} of #{card[1]}"
+  end
+
+  def hit?
+    choice = nil
+    loop do
+      puts "Hit or stay? (enter 'h' or 's')"
+      choice = gets.chomp.downcase
+      break if %w(h s).include?(choice)
+      puts "Not a valid choice."
     end
-    puts "Total: #{player.total(player.hand)}"
+    choice == 'h'
+  end
+
+  def player_turn
+    loop do
+      player.show_cards
+      hit? ? player.hand << deck.pop : break
+      break if player.busted?
+    end
+  end
+
+  def dealer_turn
+    loop do
+      dealer.show_cards
+      break if dealer.busted? || dealer.total >= 17
+      dealer.hand << deck.pop
+    end
   end
 end
 
