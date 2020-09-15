@@ -93,8 +93,7 @@ class Game
     game_setup
     deal_cards
     show_initial_cards
-    player_turn
-    dealer_turn
+    play_hand
     show_result
   end
 
@@ -143,13 +142,25 @@ class Game
     end
   end
 
+  def play_hand
+    player_turn
+    dealer_turn unless player.busted?
+  end
+
   def show_result
     player.show_cards
     dealer.show_cards
-    if player.busted? || player.total < dealer.total
-      puts "Dealer wins!"
-    elsif dealer.busted? || player.total > dealer.total
+    case
+    when player.busted?
+      puts "#{player.name} busted. Dealer wins!"
+    when dealer.busted?
+      puts "Dealer busted. #{player.name} wins!"
+    when player.total > dealer.total
       puts "#{player.name} wins!"
+    when player.total < dealer.total
+      puts "Dealer wins!"
+    else
+      puts "It's a push!"
     end
   end
 end
