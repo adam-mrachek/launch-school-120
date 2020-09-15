@@ -22,7 +22,13 @@ module Hand
   end
 
   def total
-    hand.sum{ |card| VALUES[card[0]] }
+    total = hand.sum{ |card| VALUES[card[0]] }
+
+    hand.select{ |card| card[0] == 'Ace' }.count.times do
+      break if total <= 21
+      total -= 10
+    end
+    total
   end
 end
 
