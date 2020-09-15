@@ -36,7 +36,7 @@ class Player
     @hand = []
   end
 
-  def choose_player_name
+  def choose_name
     name = nil
     loop do
       puts "Please enter your name (letters and numbers only):"
@@ -47,19 +47,14 @@ class Player
     @name = name
   end
 
-  def hit
-
-  end
-
-  def stay
-  end
-
-  def show_cards 
+  def show_cards
+    puts ""
     puts "#{name} has:"
     hand.each do |card|
-      puts "#{card[0]} of #{card[1]}"
+      puts "> #{card[0]} of #{card[1]}"
     end
     puts "Total: #{total}"
+    puts ""
   end
 end
 
@@ -95,11 +90,16 @@ class Game
   end
 
   def start
+    game_setup
     deal_cards
     show_initial_cards
     player_turn
     dealer_turn
     show_result
+  end
+
+  def game_setup
+    player.choose_name
   end
 
   def deal_cards
@@ -110,8 +110,9 @@ class Game
   end
 
   def show_initial_cards
-    puts "Dealer shows: #{dealer.hand[0][0]} of #{dealer.hand[0][1]}"
-    puts "Dealer total: #{Hand::VALUES[dealer.hand[0][0]]}"
+    puts "Dealer shows:"
+    puts "> #{dealer.hand[0][0]} of #{dealer.hand[0][1]}"
+    puts "Total: #{Hand::VALUES[dealer.hand[0][0]]}"
     puts ""
   end
 
@@ -139,6 +140,16 @@ class Game
       dealer.show_cards
       break if dealer.busted? || dealer.total >= 17
       dealer.hand << deck.pop
+    end
+  end
+
+  def show_result
+    player.show_cards
+    dealer.show_cards
+    if player.busted? || player.total < dealer.total
+      puts "Dealer wins!"
+    elsif dealer.busted? || player.total > dealer.total
+      puts "#{player.name} wins!"
     end
   end
 end
