@@ -124,14 +124,23 @@ class Game
 
   def start
     game_setup
-    deal_cards
-    show_flop
-    play_hand
-    show_result
+    loop do
+      deal_cards
+      show_flop
+      play_hand
+      show_result
+      play_again? ? reset : break
+    end
   end
 
   def game_setup
     player.choose_name
+  end
+
+  def reset
+    self.deck = Deck.new
+    player.hand = []
+    dealer.hand = []
   end
 
   def deal_cards
@@ -143,7 +152,6 @@ class Game
 
   def show_flop
     puts "Dealer shows:"
-    # binding.pry
     puts "> #{dealer.hand[0]}"
     puts "Total: #{Hand::VALUES[dealer.hand[0].rank]}"
     puts ""
@@ -196,6 +204,17 @@ class Game
     else
       puts "It's a push!"
     end
+  end
+
+  def play_again?
+    choice = nil
+    loop do
+      puts "Play another hand? (y, n)"
+      choice = gets.chomp.downcase
+      break if %w(y n).include?(choice)
+      puts "Not a valid choice."
+    end
+    choice == 'y'
   end
 end
 
