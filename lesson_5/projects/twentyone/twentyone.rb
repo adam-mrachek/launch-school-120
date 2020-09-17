@@ -78,6 +78,10 @@ class Player
     puts "Total: #{total}"
     puts ""
   end
+
+  def add_card(card)
+    hand << card
+  end
 end
 
 class Dealer < Player
@@ -145,8 +149,8 @@ class Game
 
   def deal_cards
     2.times do 
-      player.hand << deck.deal_card
-      dealer.hand << deck.deal_card
+      player.add_card(deck.deal_card)
+      dealer.add_card(deck.deal_card)
     end
   end
 
@@ -171,7 +175,7 @@ class Game
   def player_turn
     loop do
       player.show_cards
-      hit? ? player.hand << deck.deal_card : break
+      hit? ? player.add_card(deck.deal_card) : break
       break if player.busted?
     end
   end
@@ -180,7 +184,7 @@ class Game
     loop do
       dealer.show_cards
       break if dealer.busted? || dealer.total >= 17
-      dealer.hand << deck.deal_card
+      dealer.add_card(deck.deal_card)
     end
   end
 
