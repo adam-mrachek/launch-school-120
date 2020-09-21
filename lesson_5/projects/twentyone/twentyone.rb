@@ -225,10 +225,6 @@ class TwentyOne
     choice == 'h'
   end
 
-  def stay?
-    !hit?
-  end
-
   def player_turn
     loop do
       show_face_up_card
