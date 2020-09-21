@@ -108,7 +108,7 @@ class Player
   def choose_name
     name = nil
     loop do
-      puts "Please enter your name (letters and numbers only):"
+      puts "Please enter your name:"
       name = gets.chomp
       break unless name.strip.empty?
       puts "Sorry, that's not a valid name."
