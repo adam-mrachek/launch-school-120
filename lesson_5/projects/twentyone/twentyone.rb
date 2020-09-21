@@ -1,5 +1,3 @@
-require 'pry'
-
 module Displayable
   def clear
     system('clear') || system('cls')
