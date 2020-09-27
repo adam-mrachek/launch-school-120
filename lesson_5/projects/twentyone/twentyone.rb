@@ -163,8 +163,6 @@ class Deck
 end
 
 class TwentyOne
-  attr_accessor :deck, :player, :dealer
-
   include Displayable
 
   WINNING_SCORE = 21
@@ -187,6 +185,10 @@ class TwentyOne
       play_again? ? reset : break
     end
   end
+
+  private
+
+  attr_accessor :deck, :player, :dealer
 
   def game_setup
     display_welcome_message
@@ -263,6 +265,7 @@ class TwentyOne
     dealer.show_cards
   end
 
+  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def show_result
     if player.busted?
       puts "** #{player.name} busted. Dealer wins! **"
@@ -276,6 +279,7 @@ class TwentyOne
       puts "** It's a push! **"
     end
   end
+  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
   def play_again?
     choice = nil
